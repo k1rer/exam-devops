@@ -1,0 +1,105 @@
+﻿@model UserViewModel
+
+<h2 class="mb-4">Профиль пользователя</h2>
+
+<div class="card shadow-sm p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">@Model.User.Name @Model.User.LastName</h3>
+        @if (Context.Session.GetInt32("UserId") == Model.User.Id)
+        {
+            <span class="badge bg-success">Вы</span>
+        }
+    </div>
+
+    <div class="mb-2">
+        @if (Context.Session.GetInt32("UserId") == Model.User.Id)
+        {
+            <p class="mb-1"><i class="bi bi-envelope-fill me-2"></i> @Model.User.Email</p>
+            <p class="mb-0"><i class="bi bi-telephone-fill me-2"></i> @Model.User.Phone</p>
+        }
+        else
+        {
+            <p class="text-muted">Контактная информация доступна только владельцу профиля.</p>
+        }
+    </div>
+</div>
+
+<h3 class="mb-3">Отзывы</h3>
+
+@if (Model.User.Reviews != null && Model.User.Reviews.Any())
+{
+    <div class="list-group">
+        @foreach (var review in Model.User.Reviews)
+        {
+            <div class="list-group-item list-group-item-action mb-2 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <strong>@review.Author.Name</strong>
+                    <small class="text-muted">
+                        @review.CreatedAt.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"))
+                    </small>
+                </div>
+
+                <div class="mb-1">
+                    <span class="badge @(review.IsDealCompleted ? "bg-success" : "bg-secondary") me-2">
+                        @(review.IsDealCompleted ? "Сделка состоялась" : "Сделка не состоялась")
+                    </span>
+                    <span class="badge bg-primary">@review.Raiting/5 ⭐</span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(review.Comment))
+                {
+                    <p class="mb-0">@review.Comment</p>
+                }
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted">Пока нет отзывов.</p>
+}
+
+@if (Context.Session.GetInt32("UserId") != null)
+{
+    <hr />
+
+    <h3>Добавить отзыв</h3>
+
+    <form asp-action="AddReview" method="post">
+        <input type="hidden" asp-for="UserId" value="@(Model.User?.Id)" />
+
+        <div class="form-group">
+            <label asp-for="Review.Rating"></label>
+            <select asp-for="Review.Rating" class="form-control">
+                <option value="">Выберите оценку</option>
+                <option value="1">1 (Очень плохо)</option>
+                <option value="2">2</option>
+                <option value="3">3 (Средне)</option>
+                <option value="4">4</option>
+                <option value="5">5 (Отлично)</option>
+            </select>
+            <span asp-validation-for="Review.Rating" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Review.IsDealCompleted"></label>
+            <div>
+                <input type="radio" asp-for="Review.IsDealCompleted" value="true" /> Да
+                <input type="radio" asp-for="Review.IsDealCompleted" value="false" /> Нет
+            </div>
+            <span asp-validation-for="Review.IsDealCompleted" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Review.Comment"></label>
+            <textarea asp-for="Review.Comment" class="form-control"></textarea>
+            <span asp-validation-for="Review.Comment" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+
+    @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    }
+}

@@ -1,0 +1,87 @@
+﻿@model Product
+
+<h2 class="mb-4">@Model.Name</h2>
+
+<div class="card shadow-sm p-4">
+    <div class="row">
+        <div class="col-md-8">
+            <p class="fs-5"><strong>Цена:</strong> @Model.Price.ToString() р.</p>
+            <p><strong>Продавец:</strong> <a class="link-primary" asp-controller="Profile" asp-action="Index" asp-route-id="@Model.Seller.Id">@Model.Seller.Name</a></p>
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p><strong>Описание:</strong> @Model.Description</p>
+            }
+
+            <p><strong>Адрес:</strong> @Model.Location?.Address</p>
+
+            <p><strong>Дата создания объявления:</strong> @Model.CreatedAt.ToString("d MMMM yyyy HH:mm", new System.Globalization.CultureInfo("ru-RU"))</p>
+
+            <div>
+                @if (Context.Session.GetInt32("UserId") != null)
+                {
+                    <button id="showPhoneBtn" class="btn btn-primary mt-3">
+                        <i class="bi bi-telephone"></i> Показать телефон
+                    </button>
+                    <p id="phoneNumber" class="mt-2 text-success fw-bold d-none">
+                        <i class="bi bi-telephone-fill"></i> @Model.Seller?.Phone
+                    </p>
+                }
+                else
+                {
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <i class="bi bi-lock"></i> Чтобы увидеть телефон продавца,
+                        <a asp-controller="Auth" asp-action="Authorization">войдите в систему</a>.
+                    </div>
+                }
+            </div>
+
+            <a asp-controller="Products" asp-action="Index" class="btn btn-secondary mt-4">Назад к списку</a>
+        </div>
+
+        <div class="col-md-4">
+            @if (Model.Location?.Latitude != null && Model.Location?.Longitude != null)
+            {
+                <div id="map" style="width:100%; height:300px; border-radius: 8px;"></div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("showPhoneBtn");
+            const phone = document.getElementById("phoneNumber");
+
+            if (btn) {
+                btn.addEventListener("click", function () {
+                    phone.classList.remove("d-none");
+                    btn.classList.add("d-none");
+                });
+            }
+        });
+    </script>
+
+    @if (Model.Location?.Latitude != null && Model.Location?.Longitude != null)
+    {
+        <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+        <script type="text/javascript">
+            ymaps.ready(function () {
+                var latitude = @Html.Raw(Model.Location.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                var longitude = @Html.Raw(Model.Location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+                var myMap = new ymaps.Map("map", {
+                    center: [latitude, longitude],
+                    zoom: 15
+                });
+
+                var placemark = new ymaps.Placemark([latitude, longitude], {
+                    balloonContent: '@Model.Location.Address'
+                });
+
+                myMap.geoObjects.add(placemark);
+            });
+        </script>
+    }
+}

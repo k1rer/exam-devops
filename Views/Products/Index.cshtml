@@ -1,0 +1,32 @@
+﻿@model IList<Product>
+
+<h2>Список товаров</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Цена</th>
+            <th>Продавец</th>
+            <th>Адрес</th>
+            <th>Дата создания</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Price.ToString() р.</td>
+                <td><a class="link-primary" asp-controller="Profile" asp-action="Index" asp-route-id="@item.Seller.Id">@item.Seller.Name</a></td>
+                <td>@item.Location?.Address.ToString()</td>
+                <td>@item.CreatedAt.ToString("d MMMM yyyy HH:mm", new System.Globalization.CultureInfo("ru-RU"))</td>
+                <td>
+                    <a asp-controller="Products" asp-action="GetById" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                        Подробнее
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

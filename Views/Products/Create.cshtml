@@ -1,0 +1,88 @@
+﻿@model ProductDTO
+
+<h2 class="mb-4">Создать товар</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label"></label>
+        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Местоположение</label>
+        <div id="map" style="width:100%; height:400px; border-radius: 8px; border: 1px solid #ccc;"></div>
+
+        <input type="hidden" asp-for="Location.Address" id="Address" />
+        <input type="hidden" asp-for="Location.Latitude" id="Latitude" />
+        <input type="hidden" asp-for="Location.Longitude" id="Longitude" />
+
+        <span asp-validation-for="Location.Address" class="text-danger"></span>
+    </div>
+
+    <input type="hidden" asp-for="Seller"/>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Создать
+    </button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=8e60eaf8-b7dd-4ed9-96cc-ee3ecb61ee80&lang=ru_RU"></script>
+    <script>
+        ymaps.ready(init);
+
+        function init() {
+            var map = new ymaps.Map("map", {
+                center: [66.25, 94.15],
+                zoom: 3
+            });
+
+            var placemark;
+
+            map.events.add('click', function (e) {
+                var coords = e.get('coords');
+
+                if (placemark) {
+                    placemark.geometry.setCoordinates(coords);
+                } else {
+                    placemark = new ymaps.Placemark(coords, {}, { draggable: true });
+                    map.geoObjects.add(placemark);
+
+                    placemark.events.add('dragend', function () {
+                        saveLocation(placemark.geometry.getCoordinates());
+                    });
+                }
+
+                saveLocation(coords);
+            });
+
+            function saveLocation(coords) {
+                var lat = coords[0];
+                var lng = coords[1];
+
+                document.getElementById("Latitude").value = lat;
+                document.getElementById("Longitude").value = lng;
+
+                ymaps.geocode(coords).then(function (res) {
+                    var address = res.geoObjects.get(0).getAddressLine();
+                    document.getElementById("Address").value = address;
+                });
+            }
+        }
+    </script>
+}
