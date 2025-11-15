@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: exam-aspnet-service
+  namespace: exam-app
+  annotations:
+    yandex.cloud/load-balancer-type: "external"
+spec:
+  selector:
+    app: exam-aspnet-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer

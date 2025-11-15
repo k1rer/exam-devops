@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ef-migrations
+  namespace: exam-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: migration-runner
+        image: cr.yandex/crp2n5p189f9sv84n180/exam-dev-ops:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cd /app
+            # Создаем миграцию
+            dotnet ef migrations add InitialMigration --verbose
+            # Применяем миграции
+            dotnet ef database update --verbose
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ConnectionStrings__Default
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: connection-string
+      restartPolicy: Never
+  backoffLimit: 3

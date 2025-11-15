@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exam-aspnet-app
+  namespace: exam-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: exam-aspnet-app
+  template:
+    metadata:
+      labels:
+        app: exam-aspnet-app
+    spec:
+      containers:
+      - name: exam-aspnet-app
+        image: cr.yandex/crp2n5p189f9sv84n180/exam-dev-ops:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ConnectionStrings__Default
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: connection-string
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
