@@ -84,5 +84,5 @@ jobs:
 
     - name: Notify deployment
       run: |
-        echo "🚀 Application successfully deployed to Yandex Cloud Kubernetes"
-        echo "📱 Access your app at: http://158.160.206.152"
+        echo "Application successfully deployed to Yandex Cloud Kubernetes"
+        echo "Access your app at: http://158.160.206.152"
