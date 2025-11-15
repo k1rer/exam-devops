@@ -2,9 +2,9 @@ name: Deploy to Yandex Cloud
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   REGISTRY_ID: crp2n5p189f9sv84n180
