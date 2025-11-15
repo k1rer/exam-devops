@@ -3,7 +3,7 @@
 ## Локальный запуск
 ```bash
 dotnet restore
-dotnet run
+dotnet run'''
 
 ## Развертывание в Kubernetes
 '''bash
